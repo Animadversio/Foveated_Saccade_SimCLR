@@ -6,10 +6,10 @@ Is it possible that human learn their visual representations with a self-supervi
 
 In this project, we reverse-engineered the key data augmentations that support the learned representation quality , namely random resized crop and blur. We hypothesized that saccade and foveation in our visual processes, is the equivalence of random crops and blur. We implement these biological plausible transformation of images and test if they could confer the same representation quality as those engineered ones. 
 
-Our experimental pipeline is heavily based on the pytorch SimCLR implemented by [sthalles](https://github.com/sthalles/SimCLR) and by [Spijkervet](https://github.com/Animadversio/SimCLR-2). This new code base supports our biologically inspired data augmentations, visualization and *post hoc* data analysis. 
+Our experimental pipeline is based on the pytorch SimCLR implemented by [sthalles](https://github.com/sthalles/SimCLR) and by [Spijkervet](https://github.com/Spijkervet/SimCLR). Our development supports our biologically inspired data augmentations, visualization and *post hoc* data analysis. 
 
 ## Usage
-For running a quick demo, replace the `$Datasets_path` with the parent folder of `stl10_binary` (e.g. `.\Datasets`). You could download and extract from [here](https://cs.stanford.edu/~acoates/stl10/). 
+For running a quick demo of training, replace the `$Datasets_path` with the parent folder of `stl10_binary` (e.g. `.\Datasets`). You could download and extract STL10 from [here](https://cs.stanford.edu/~acoates/stl10/). 
 ```bash
 python run_magnif.py -data $Datasets_path -dataset-name stl10 --workers 16 \
 	--ckpt_every_n_epocs 5 --epochs 100  --batch-size 256  --out_dim 256  \
@@ -17,6 +17,16 @@ python run_magnif.py -data $Datasets_path -dataset-name stl10 --workers 16 \
 	--cover_ratio 0.05 0.35  --fov_size 20  --K  20  --sampling_bdr 16 
 ```
 Code has been tested on Ubuntu and Windows10 system. 
+
+Colab demo is to come... 
+
+## Implementation
+We implemented foveation in two ways: one approximating our perception, the other approximating the cortical representation of the image. In our perception, we can see with highest resolution at the fixation point, while the peripheral vision is blurred and less details could be recognized (Arturo; Simoncelli 2011). So we model this perception as a spatially varying blur as classically did. In contrast, from a neurobiological view, our visual cortex distorted the retinal input: a larger cortical area processes the input at fovea than that for periphery given the same image size. This is known as the [cortical magnification](https://en.wikipedia.org/wiki/Cortical_magnification). Pictorially, this is magnifying and over-representing the image around the fixation points. 
+
+![](media/Figure1_Method_Schematic-01.png)
+
+These two different views of foveation (perceptual vs neurobiological) were implemented and compared as data augmentations in SimCLR. 
+
 
 ## Structure of Repo
 * Main command line interface
