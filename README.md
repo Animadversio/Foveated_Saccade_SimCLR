@@ -18,6 +18,8 @@ python run_magnif.py -data $Datasets_path -dataset-name stl10 --workers 16 \
 ```
 Code has been tested on Ubuntu and Windows10 system. 
 
+For running in docker / on cluster, we used the following pytorch docker image `pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.9`. For settings for LSF Spectrum cluster, you can refer to `scripts`. 
+
 Colab demo is to come... 
 
 ## Implementation
