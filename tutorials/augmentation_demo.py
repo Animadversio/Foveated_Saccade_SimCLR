@@ -8,10 +8,11 @@ from torchvision.utils import make_grid
 from torchvision.transforms import ToPILImage, ToTensor
 from torch.nn.functional import interpolate
 from data_aug.aug_utils import send_to_clipboard
+#%% Foveation as blur
 from data_aug.foveation import FoveateAt, randomFoveated, FoveateAt_demo
 figdir = r"E:\OneDrive - Harvard University\SVRHM2021\Figures"
 #%%
-img = plt.imread("data_aug\\Gigi_resize.jpg")
+img = plt.imread("media\\Gigi_resize.jpg")
 img_tsr = torch.tensor(img / 255.0).permute([2, 0, 1]).unsqueeze(0).float()
 img_tsr_rsz = interpolate(img_tsr, scale_factor=0.5)
 # fov_img = FoveateAt(img_tsr, pnt=(200, 400), kerW_coef=0.04, e_o=1, \
@@ -38,7 +39,7 @@ for i in range(len(mask_col)):
     ToPILImage()(blurimg_col[i]).save(join(figdir, "foveation_demo\\blurimg_%02d.png"%i))
     ToPILImage()(multiply_col[i]).save(join(figdir, "foveation_demo\\multimg_%02d.png"%i))
 
-#%%
+#%% Cortical Magnifications
 from data_aug.cort_magnif_tfm import img_cortical_magnif_tsr, radial_exp_isotrop_gridfun, radial_quad_isotrop_gridfun, \
             cortical_magnif_tsr_demo
 #%%

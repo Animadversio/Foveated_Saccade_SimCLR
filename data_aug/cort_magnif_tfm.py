@@ -1,24 +1,26 @@
-from scipy.misc import face
 import torch
 import torch.nn.functional as F
-from torchvision import datasets
 from torchvision.utils import make_grid
 from torchvision.transforms import ToPILImage, ToTensor
-from torch.nn.functional import interpolate
 import numpy as np
 from PIL import Image
 import matplotlib.pylab as plt
 import matplotlib as mpl
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
-from skimage.transform import rescale
-from scipy.misc import face
 from scipy.stats import norm
 from scipy.interpolate import griddata
 from .aug_utils import unravel_indices
 
 def get_RandomMagnifTfm(grid_generator="radial_quad_isotrop", bdr=16, fov=20, K=20, slope_C=0.012, 
     sal_sample=False, sample_temperature=1.5, **kwargs):
+    """Constructor of a random Magnification Transform with signature
+        randomMagnif(imgtsr, logdensity=None)
+    
+    Parameters:
+        grid_generator: str
+
+    """
     if grid_generator == "radial_quad_isotrop":
         grid_func = lambda imgtsr, pnt: radial_quad_isotrop_gridfun(imgtsr, pnt,
                                                                     fov=fov, K=K, **kwargs)
@@ -80,6 +82,17 @@ def img_cortical_magnif_tsr(imgtsr, pnt, grid_func, demo=True):
 
 
 def cortical_magnif_tsr_demo(imgtsr, pnt, grid_func, subN=2):
+    """ Demo the cortical magnification transform. 
+    Inputs: 
+        imgtsr: Image tensor with shape (C, H, W) or (1, C, H, W)
+        pnt: (X, Y) tuple. 
+        grid_func: a function with signature 
+            `XX_intp, YY_intp = grid_func(imgtsr, pnt)`
+            It generates interpolation grid of X and Y. 
+
+    Parameters:
+        subN: subsample the sampling grid by `subN` to show in the figure.
+    """
     if imgtsr.ndim == 4:
         imgtsr.squeeze_(0)
     _, H, W = imgtsr.shape
@@ -130,7 +143,7 @@ def normal_gridfun(imgtsr, pnt, cutoff_std=2.25):
     """
 
     cutoff_std: where to cut off the normal distribution. too large will make the sampling at center
-    too dense!
+        too dense!
     """
     _, H, W = imgtsr.shape
     Hhalf, Whalf = H // 2, W // 2
@@ -166,9 +179,7 @@ def radial_quad_isotrop_gridfun(imgtsr, pnt, fov=20, K=20, cover_ratio=None):
     # RadDistTfm = lambda R, R2 : (R < fov) * R + (R > fov) * (R**2 - fov**2 + fov)
     RadDistTfm = lambda R: (R < fov) * R + \
         (R > fov) * ((R + K) ** 2 / 2 / (fov + K) + fov - (fov + K) / 2)
-    # fov = 10
-    # M = 30
-    # K = 30
+
     ecc_tfm = RadDistTfm(ecc, )
     coef = maxdist / ecc_tfm.max()
     if cover_ratio is not None:
@@ -209,6 +220,8 @@ def radial_exp_isotrop_gridfun(imgtsr, pnt, slope_C=2.0, cover_ratio=None):
 #%%
 if __name__ == "__main__":
     #%%
+    from scipy.misc import face
+    from skimage.transform import rescale
     img = rescale(face(), (0.25, 0.25, 1))
     imgtsr = torch.tensor(img).permute([2,0,1]).float()
     #%%
