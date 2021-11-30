@@ -41,5 +41,7 @@ These two different views of foveation (perceptual vs neurobiological) were impl
 * `posthoc\`, analysis code for training result. 
 * `scripts\`, scripts that run experiments on cluster. 
 
+## Dependency
+* [FastSal](https://github.com/Animadversio/FastSal), we forked and modified a few lines of [original](https://github.com/feiyanhu/FastSal) to make it compatible with current pytorch 3.9 and torchvision. 
 
 Inquiries: binxu_wang@hms.harvard.edu
