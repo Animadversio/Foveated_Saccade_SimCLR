@@ -20,7 +20,8 @@ Code has been tested on Ubuntu and Windows10 system.
 
 For running in docker / on cluster, we used the following pytorch docker image `pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.9`. For settings for LSF Spectrum cluster, you can refer to `scripts`. 
 
-Colab demo is to come... 
+* Tutorial: Demo of Biological transformations [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1NhZ2Kkw3spR8ki9f8ETFbX2pk-032YLV?usp=sharing)
+* Tutorial: Demo of Training STL10 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1F_qjhx0OdDzfAkuWi178E5De_fEP7OC6?usp=sharing)
 
 ## Implementation
 We implemented foveation in two ways: one approximating our perception, the other approximating the cortical representation of the image. In our perception, we can see with highest resolution at the fixation point, while the peripheral vision is blurred and less details could be recognized (Arturo; Simoncelli 2011). Moreover, when we change fixation across the image, the [whole scene still feels stable](https://www.sciencedirect.com/science/article/pii/S0042698908001727) without shifting. So we model this perception as a spatially varying blur of image as people classically did. 
@@ -43,5 +44,7 @@ These two different views of foveation (perceptual vs neurobiological) were impl
 
 ## Dependency
 * [FastSal](https://github.com/Animadversio/FastSal), we forked and modified a few lines of [original](https://github.com/feiyanhu/FastSal) to make it compatible with current pytorch 3.9 and torchvision. 
+* [kornia](https://kornia.readthedocs.io/en/latest/get-started/installation.html) `pip install kornia`. Tested with version 0.3.1-0.6.1. 
+* pytorch. Tested with version 1.7.1-1.10.0
 
 Inquiries: binxu_wang@hms.harvard.edu
