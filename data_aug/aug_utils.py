@@ -29,6 +29,8 @@ def unravel_indices(
     coord = []
     for dim in reversed(shape):
         coord.append(indices % dim)
-        indices = indices // dim
+        # indices = indices // dim
+        # use this version to suppress the torch warning about changed behavior
+        indices = torch.div(indices, dim, rounding_mode="floor") 
     coord = torch.stack(coord[::-1], dim=-1)
     return coord
