@@ -18,6 +18,7 @@ from collections.abc import Sequence
 from typing import Tuple, List, Optional
 import warnings
 from torchvision.transforms import RandomResizedCrop
+from .aug_utils import unravel_indices
 
 def _setup_size(size, error_msg):
   if isinstance(size, numbers.Number):
@@ -31,23 +32,6 @@ def _setup_size(size, error_msg):
 
   return size
 
-def unravel_indices(
-  indices: torch.LongTensor,
-  shape: Tuple[int, ...],
-) -> torch.LongTensor:
-  r"""Converts flat indices into unraveled coordinates in a target shape.
-  Args:
-    indices: A tensor of (flat) indices, (*, N).
-    shape: The targeted shape, (D,).
-  Returns:
-    The unraveled coordinates, (*, N, D).
-  """
-  coord = []
-  for dim in reversed(shape):
-    coord.append(indices % dim)
-    indices = indices // dim
-  coord = torch.stack(coord[::-1], dim=-1)
-  return coord
 
 def get_gaussian_kernel(kernel_size=3, sigma=2, channels=3, pad=0):
   # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
@@ -82,6 +66,7 @@ def get_gaussian_kernel(kernel_size=3, sigma=2, channels=3, pad=0):
   gaussian_filter.weight.requires_grad = False
   
   return gaussian_filter
+
 
 class RandomCrop_with_Density(torch.nn.Module):
   """Crop the given image at a random location determined by a density map. 
@@ -212,10 +197,8 @@ class RandomCrop_with_Density(torch.nn.Module):
 
     return TF.crop(img, i, j, h, w)
 
-
   def __repr__(self):
     return self.__class__.__name__ + "(size={0}, padding={1})".format(self.size, self.padding)
-
 
 
 def _overlap_area(i, j, h, w, height, width):
