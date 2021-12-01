@@ -115,7 +115,7 @@ def main():
             disable_crop=args.disable_crop)
     if args.orig_cropper:
         rndcropper = RandomResizedCrop(96, )
-        train_dataset.dense_cropper = lambda img, salmap: rndcropper(img)
+        train_dataset.density_cropper = lambda img, salmap: rndcropper(img) # dense_cropper Bug fixed at Nov30
     train_dataset.transform = train_dataset.get_simclr_post_crop_transform(96,
                                                 blur=args.blur, foveation=args.foveation,
                                                 kerW_coef=args.kerW_coef, fov_area_rng=args.fov_area_rng, bdr=12)
