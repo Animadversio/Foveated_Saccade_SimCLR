@@ -1,4 +1,6 @@
-
+"""Show augmented samples from training runs
+by slicing the saved training samples.
+"""
 import os
 from os.path import join
 import yaml
@@ -29,9 +31,7 @@ def vis_exist_samples(expdir, show=True):
     img = plt.imread(rootdir/expdir/"sample_data_augs.png")
     if show: pil_showimg(img)
     return img
-#%%
-runnms = os.listdir(rootdir)
-#%%
+
 def make_grid_np(img_arr, nrow=8, padding=2, pad_value=0):
     if type(img_arr) is list:
         try:
@@ -77,6 +77,8 @@ def subsample_montage(mtgimg, rows=[1,2,5], cols="rand", colsamps=4, pad=4, imgs
     new_mtg = make_grid_np(tile_col, nrow=colsamps if cols == "rand" else len(cols), padding=2, pad_value=0)
     return tile_col, new_mtg
 
+#%%
+runnms = os.listdir(rootdir)
 
 #%%
 expnms = [*filter(lambda nm: "proj256_eval_fov_nocrop_fvr0_01-0_5" in nm, runnms)]

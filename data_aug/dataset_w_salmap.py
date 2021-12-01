@@ -251,7 +251,6 @@ class Contrastive_STL10_w_CortMagnif(Dataset):
         return data_transforms
     
 
-
 def visualize_samples(saldataset):
     figh, axs = plt.subplots(2, 10, figsize=(14, 3.5))
     for i in range(10):
@@ -262,32 +261,6 @@ def visualize_samples(saldataset):
         axs[1, i].imshow(salmap[0])
         axs[1, i].axis("off")
     figh.savefig("/scratch1/fs1/crponce/Datasets/example%03d.png" % np.random.randint(1E3))
-# face_dataset = FaceLandmarksDataset(csv_file='data/faces/face_landmarks.csv',
-#                                     root_dir='data/faces/')
-#
-# fig = plt.figure()
-#
-# for i in range(len(face_dataset)):
-#     sample = face_dataset[i]
-#
-#     print(i, sample['image'].shape, sample['landmarks'].shape)
-#
-#     ax = plt.subplot(1, 4, i + 1)
-#     plt.tight_layout()
-#     ax.set_title('Sample #{}'.format(i))
-#     ax.axis('off')
-#     show_landmarks(**sample)
-#
-#     if i == 3:
-#         plt.show()
-#         break
-#%%
-# import matplotlib.pylab as plt
-# img, salmap = STL10_sal[89930]
-# fig, axs = plt.subplots(1, 2, figsize=[8, 4.5])
-# axs[0].imshow(img[0])
-# axs[1].imshow(salmap[0, 0, :, :])
-# plt.show()
 
 
 if __name__ == "__main__":

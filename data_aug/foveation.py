@@ -11,7 +11,6 @@ def cosfunc(x):
   """The cosine square smoothing function"""
   Lower = torch.cos(pi*(x + 1/4))**2;
   Upper = 1 - torch.cos(pi*(x - 3/4))**2;
-  # print(tf.logical_and((x <= -1/4), (x > -3/4)).dtype)
   fval = torch.where(((x <= -1/4) & (x >-3/4)), Lower, torch.zeros(1)) + \
       torch.where(((x >= 1/4) & (x <= 3/4)), Upper, torch.zeros(1)) + \
       torch.where(((x < 1/4) & (x > -1/4)), torch.ones(1), torch.zeros(1))
@@ -39,8 +38,8 @@ def fov_rbf(ecc, spacing, e_o=1.0):
   spacing = torch.tensor(spacing).float()
   e_o = torch.tensor(e_o).float()
   preinput = (torch.log(ecc) - torch.log(e_o)) / spacing
-  preinput = torch.clamp(preinput, 0.0, 1.0) # only clip 0 is enough.
-  ecc_basis = cosfunc(preinput);
+  preinput = torch.clamp(preinput, 0.0, 1.0)  # only clip 0 is enough.
+  ecc_basis = cosfunc(preinput)
   return ecc_basis
 
 
@@ -65,9 +64,6 @@ def FoveateAt(img_tsr, pnt:tuple, kerW_coef=0.04, e_o=1, \
   D2fov = torch.sqrt((XX - xid)**2 + (YY - yid)**2)
   D2fov_deg = D2fov * deg_per_pix
   maxecc = math.sqrt(max(xid, W-xid)**2 + max(yid, H-yid)**2) * deg_per_pix  # max([D2fov_deg[0,0], D2fov_deg[-1,0], D2fov_deg[0,-1], D2fov_deg[-1,-1]])
-  # maxecc = max(D2fov_deg[0,0], D2fov_deg[-1,0], D2fov_deg[0,-1], D2fov_deg[-1,-1]) # maximal deviation at 4 corner
-  # maxecc = tf.reduce_max([D2fov_deg[0,0], D2fov_deg[-1,0], D2fov_deg[0,-1], D2fov_deg[-1,-1]])
-  # maxecc = max([D2fov_deg[0,0], D2fov_deg[-1,0], D2fov_deg[0,-1], D2fov_deg[-1,-1]])
   # e_r = maxecc; # 15
   if N_e is None:
     N_e = np.ceil((np.log(maxecc)-np.log(e_o))/spacing).astype("int32") 
@@ -82,10 +78,10 @@ def FoveateAt(img_tsr, pnt:tuple, kerW_coef=0.04, e_o=1, \
     if kerSz % 2 == 0:  # gaussian_blur2d needs a odd number sized kernel.
       kerSz += 1
     img_gsft = gaussian_blur2d(img_tsr, kernel_size=(kerSz, kerSz), sigma=(kerW, kerW), border_type='reflect')
-    finalimg = finalimg + rbf_basis[None,None,:,:] * img_gsft # tf.expand_dims(rbf_basis,-1)
+    finalimg = finalimg + rbf_basis[None, None, :, :] * img_gsft
   
-  if demo: # Comment out this part when really run. 
-    figh,ax = plt.subplots(figsize=[10,10])
+  if demo:  # Comment out this part when Deployment
+    figh, ax = plt.subplots(figsize=[10,10])
     plt.imshow(finalimg.squeeze(0).permute(1,2,0))
     plt.axis("off")
     plt.show()
@@ -153,7 +149,9 @@ def randomFoveated(img_tsr, pntN:int, kerW_coef=0.04, fov_area_rng=1, N_e=None, 
   finimgs.clamp_(0.0, 1.0)
   return finimgs.squeeze(0) if tfm_ver else finimgs
 
+
 def get_RandomFoveationTfm(kerW_coef=0.06, fov_area_rng=(0.01, 0.5), bdr=12):
+  """ Simple wrapper / function constructor for Random foveation transform """
   tfm = lambda imgtsr: randomFoveated(imgtsr, 1, kerW_coef=kerW_coef, fov_area_rng=fov_area_rng, spacing=0.2, bdr=bdr, tfm_ver=True)
   return tfm
 
@@ -236,6 +234,7 @@ def FoveateAt_demo(img_tsr, pnt: tuple, kerW_coef=0.04, e_o=1,
     blurimg_col.append(img_gsft[0])
     multiply_col.append((rbf_basis[None, None, :, :] * img_gsft).squeeze(0))
 
+  # Visualization code
   # figh, ax = plt.subplots(figsize=[10, 10])
   # plt.imshow(finalimg.squeeze(0).permute(1, 2, 0))
   # plt.axis("off")
