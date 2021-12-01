@@ -13,7 +13,8 @@ from data_aug.view_generator import ContrastiveLearningViewGenerator
 class STL10_w_salmap(Dataset):
     """ Return STL image with saliency maps """
 
-    def __init__(self, dataset_dir=r"/scratch1/fs1/crponce/Datasets", transform=None, split="unlabeled"):
+    def __init__(self, dataset_dir=r"/scratch1/fs1/crponce/Datasets", transform=None, 
+        split="unlabeled", memmap=False):
         """
         Args:
             dataset_dir (string): Directory with all the images. E:\Datasets
@@ -23,7 +24,8 @@ class STL10_w_salmap(Dataset):
         """
         self.dataset = datasets.STL10(dataset_dir, split=split, download=True,
                                  transform=None,)
-        self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy")) # stl10_unlabeled_saliency.npy
+        self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy"),
+                               mmap_mode="r" if memmap else None) # stl10_unlabeled_saliency.npy
         assert len(self.dataset) == self.salmaps.shape[0]
         # transforms.Compose([transforms.ToTensor(),
         #                     transforms.Normalize(mean=(0.4914, 0.4822, 0.4465),
@@ -50,7 +52,7 @@ class Contrastive_STL10_w_salmap(Dataset):
     def __init__(self, dataset_dir=r"/scratch1/fs1/crponce/Datasets", \
         density_cropper=RandomResizedCrop_with_Density((96, 96),), \
         transform_post_crop=None, split="unlabeled", n_views=2,
-        salmap_control=False, disable_crop=False):
+        salmap_control=False, disable_crop=False, memmap=False):
         """
         Args:
             dataset_dir (string): Directory with all the images. E:\Datasets
@@ -64,7 +66,8 @@ class Contrastive_STL10_w_salmap(Dataset):
         if self.salmap_control: # if true, use flat maps. We can implement random maps in the future. 
             print("Use control saliency map, instead of real ones, data not loading. Temperature disabled.")
         else:
-            self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy")) # stl10_unlabeled_saliency.npy
+            self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy"),
+                               mmap_mode="r" if memmap else None) # stl10_unlabeled_saliency.npy
             assert len(self.dataset) == self.salmaps.shape[0]
 
         self.root_dir = dataset_dir
@@ -136,7 +139,8 @@ class Contrastive_STL10_w_CortMagnif(Dataset):
 
     def __init__(self, dataset_dir=r"/scratch1/fs1/crponce/Datasets", \
         transform=None, split="unlabeled", n_views=2,
-        crop=False, magnif=False, sal_sample=False, sal_control=False):
+        crop=False, magnif=False, sal_sample=False, sal_control=False,
+        memmap=False):
         """
         Args:
             dataset_dir (string): Directory with all the images. E:\Datasets
@@ -147,7 +151,8 @@ class Contrastive_STL10_w_CortMagnif(Dataset):
         self.dataset = datasets.STL10(dataset_dir, split=split, download=True,
                                  transform=None,)
 
-        self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy")) # stl10_unlabeled_saliency.npy
+        self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy"),
+                               mmap_mode="r" if memmap else None)  # stl10_unlabeled_saliency.npy
         assert len(self.dataset) == self.salmaps.shape[0]
         self.root_dir = dataset_dir
         self.crop = crop
@@ -251,7 +256,6 @@ class Contrastive_STL10_w_CortMagnif(Dataset):
         return data_transforms
     
 
-
 def visualize_samples(saldataset):
     figh, axs = plt.subplots(2, 10, figsize=(14, 3.5))
     for i in range(10):
@@ -262,32 +266,6 @@ def visualize_samples(saldataset):
         axs[1, i].imshow(salmap[0])
         axs[1, i].axis("off")
     figh.savefig("/scratch1/fs1/crponce/Datasets/example%03d.png" % np.random.randint(1E3))
-# face_dataset = FaceLandmarksDataset(csv_file='data/faces/face_landmarks.csv',
-#                                     root_dir='data/faces/')
-#
-# fig = plt.figure()
-#
-# for i in range(len(face_dataset)):
-#     sample = face_dataset[i]
-#
-#     print(i, sample['image'].shape, sample['landmarks'].shape)
-#
-#     ax = plt.subplot(1, 4, i + 1)
-#     plt.tight_layout()
-#     ax.set_title('Sample #{}'.format(i))
-#     ax.axis('off')
-#     show_landmarks(**sample)
-#
-#     if i == 3:
-#         plt.show()
-#         break
-#%%
-# import matplotlib.pylab as plt
-# img, salmap = STL10_sal[89930]
-# fig, axs = plt.subplots(1, 2, figsize=[8, 4.5])
-# axs[0].imshow(img[0])
-# axs[1].imshow(salmap[0, 0, :, :])
-# plt.show()
 
 
 if __name__ == "__main__":

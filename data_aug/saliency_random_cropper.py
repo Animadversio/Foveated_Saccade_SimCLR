@@ -3,21 +3,36 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 from torchvision.transforms import functional as TF
-if torchvision.__version__ in ['0.8.2']:
-  OLD_TV_VER = True
-  import PIL
-else:
-  OLD_TV_VER = False
-  from torchvision.transforms.transforms import InterpolationMode
+from torchvision.transforms import RandomResizedCrop
+from .aug_utils import unravel_indices
 
-import math 
+import math
 import numpy as np
 import numbers
 from torch import Tensor
 from collections.abc import Sequence
 from typing import Tuple, List, Optional
 import warnings
-from torchvision.transforms import RandomResizedCrop
+from packaging import version
+
+# torchvision compatibility
+TVver = version.parse(torchvision.__version__)
+if TVver < version.parse('0.9.0'):
+  OLD_TV_VER = True
+  import PIL
+  DefaultInterpMode = PIL.Image.BILINEAR
+else:
+  OLD_TV_VER = False
+  from torchvision.transforms.transforms import InterpolationMode
+  DefaultInterpMode = TF.InterpolationMode.BILINEAR
+if hasattr(TF, "_get_image_size"):
+  get_image_size = TF._get_image_size
+elif hasattr(TF, "get_image_size"):
+  get_image_size = TF.get_image_size
+else:
+  raise ImportError("TorchVision version %s compatibility issue: Cannot find `get_image_size` "
+                    "or `_get_image_size`"%torchvision.__version__)
+
 
 def _setup_size(size, error_msg):
   if isinstance(size, numbers.Number):
@@ -31,23 +46,6 @@ def _setup_size(size, error_msg):
 
   return size
 
-def unravel_indices(
-  indices: torch.LongTensor,
-  shape: Tuple[int, ...],
-) -> torch.LongTensor:
-  r"""Converts flat indices into unraveled coordinates in a target shape.
-  Args:
-    indices: A tensor of (flat) indices, (*, N).
-    shape: The targeted shape, (D,).
-  Returns:
-    The unraveled coordinates, (*, N, D).
-  """
-  coord = []
-  for dim in reversed(shape):
-    coord.append(indices % dim)
-    indices = indices // dim
-  coord = torch.stack(coord[::-1], dim=-1)
-  return coord
 
 def get_gaussian_kernel(kernel_size=3, sigma=2, channels=3, pad=0):
   # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
@@ -82,6 +80,7 @@ def get_gaussian_kernel(kernel_size=3, sigma=2, channels=3, pad=0):
   gaussian_filter.weight.requires_grad = False
   
   return gaussian_filter
+
 
 class RandomCrop_with_Density(torch.nn.Module):
   """Crop the given image at a random location determined by a density map. 
@@ -155,7 +154,7 @@ class RandomCrop_with_Density(torch.nn.Module):
     Returns:
       tuple: params (i, j, h, w) to be passed to ``crop`` for random crop.
     """
-    w, h = TF._get_image_size(img)
+    w, h = get_image_size(img)
     th, tw = output_size
 
     if h + 1 < th or w + 1 < tw:
@@ -173,7 +172,7 @@ class RandomCrop_with_Density(torch.nn.Module):
   def sample_crops(self, img: Tensor, output_size: Tuple[int, int], salmap):
     # density: 4d tensor with [1,1,H,W]
     th, tw = output_size
-    w, h = TF._get_image_size(img)
+    w, h = get_image_size(img)
 
     densitymap = torch.exp((salmap.to(self.device) - torch.logsumexp(salmap.to(self.device), (0,1,2,3), keepdim=True)) / self.temperature)
     densitymap_pad = TF.pad(densitymap, self.padding, padding_mode='constant', fill=0)
@@ -195,7 +194,7 @@ class RandomCrop_with_Density(torch.nn.Module):
     if self.padding is not None:
       img = TF.pad(img, self.padding, self.fill, self.padding_mode)
 
-    width, height = TF._get_image_size(img)
+    width, height = get_image_size(img)
     # pad the width if needed
     if self.pad_if_needed and width < self.size[1]:
       padding = [self.size[1] - width, 0]
@@ -212,10 +211,8 @@ class RandomCrop_with_Density(torch.nn.Module):
 
     return TF.crop(img, i, j, h, w)
 
-
   def __repr__(self):
     return self.__class__.__name__ + "(size={0}, padding={1})".format(self.size, self.padding)
-
 
 
 def _overlap_area(i, j, h, w, height, width):
@@ -257,7 +254,7 @@ class RandomResizedCrop_with_Density(torch.nn.Module):
   """
 
   def __init__(self, size, scale=(0.08, 1.0), ratio=(3. / 4., 4. / 3.),
-      interpolation=PIL.Image.BILINEAR if OLD_TV_VER else TF.InterpolationMode.BILINEAR,
+      interpolation=DefaultInterpMode,
       temperature=1.5, pad_if_needed=False, bdr=0):
     super().__init__()
     self.size = _setup_size(size, error_msg="Please provide only two dimensions (h, w) for size.")
@@ -300,7 +297,7 @@ class RandomResizedCrop_with_Density(torch.nn.Module):
       tuple: params (i, j, h, w) to be passed to ``crop`` for a random
       sized crop.
     """
-    width, height = TF._get_image_size(img)
+    width, height = get_image_size(img)
     area = height * width
 
     log_ratio = torch.log(torch.tensor(ratio))
@@ -366,7 +363,7 @@ class RandomResizedCrop_with_Density(torch.nn.Module):
       densitymap = None
     i, j, h, w = self.get_params(img, self.scale, self.ratio, densitymap,
                                  bdr=self.bdr)
-    width, height = TF._get_image_size(img)
+    width, height = get_image_size(img)
     if self.pad_if_needed:
       new_i, new_j = i, j
       p_left, p_top, p_right, p_bottom = 0, 0, 0, 0

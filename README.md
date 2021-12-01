@@ -13,6 +13,8 @@ Our experimental pipeline is based on the pytorch SimCLR implemented by [sthalle
 ### Colab Tutorials
 * [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1NhZ2Kkw3spR8ki9f8ETFbX2pk-032YLV?usp=sharing) 
  Tutorial: Demo of Biological transformations 
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1CCrjveyhGAJu5V_RiOmBHpaoDZihBjjj?usp=sharing)
+ Tutorial: Augmentation pipeline applied to the STL10 dataset
 * [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1F_qjhx0OdDzfAkuWi178E5De_fEP7OC6?usp=sharing)
  Tutorial: Demo of Training STL10 
 * [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/18V0f81Sm8H4uruP1SGhiV3eiHF1Io1k7?usp=sharing)
