@@ -13,7 +13,8 @@ from data_aug.view_generator import ContrastiveLearningViewGenerator
 class STL10_w_salmap(Dataset):
     """ Return STL image with saliency maps """
 
-    def __init__(self, dataset_dir=r"/scratch1/fs1/crponce/Datasets", transform=None, split="unlabeled"):
+    def __init__(self, dataset_dir=r"/scratch1/fs1/crponce/Datasets", transform=None, 
+        split="unlabeled", memmap=False):
         """
         Args:
             dataset_dir (string): Directory with all the images. E:\Datasets
@@ -23,7 +24,8 @@ class STL10_w_salmap(Dataset):
         """
         self.dataset = datasets.STL10(dataset_dir, split=split, download=True,
                                  transform=None,)
-        self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy")) # stl10_unlabeled_saliency.npy
+        self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy"),
+                               mmap_mode="r" if memmap else None) # stl10_unlabeled_saliency.npy
         assert len(self.dataset) == self.salmaps.shape[0]
         # transforms.Compose([transforms.ToTensor(),
         #                     transforms.Normalize(mean=(0.4914, 0.4822, 0.4465),
@@ -50,7 +52,7 @@ class Contrastive_STL10_w_salmap(Dataset):
     def __init__(self, dataset_dir=r"/scratch1/fs1/crponce/Datasets", \
         density_cropper=RandomResizedCrop_with_Density((96, 96),), \
         transform_post_crop=None, split="unlabeled", n_views=2,
-        salmap_control=False, disable_crop=False):
+        salmap_control=False, disable_crop=False, memmap=False):
         """
         Args:
             dataset_dir (string): Directory with all the images. E:\Datasets
@@ -64,7 +66,8 @@ class Contrastive_STL10_w_salmap(Dataset):
         if self.salmap_control: # if true, use flat maps. We can implement random maps in the future. 
             print("Use control saliency map, instead of real ones, data not loading. Temperature disabled.")
         else:
-            self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy")) # stl10_unlabeled_saliency.npy
+            self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy"),
+                               mmap_mode="r" if memmap else None) # stl10_unlabeled_saliency.npy
             assert len(self.dataset) == self.salmaps.shape[0]
 
         self.root_dir = dataset_dir
@@ -136,7 +139,8 @@ class Contrastive_STL10_w_CortMagnif(Dataset):
 
     def __init__(self, dataset_dir=r"/scratch1/fs1/crponce/Datasets", \
         transform=None, split="unlabeled", n_views=2,
-        crop=False, magnif=False, sal_sample=False, sal_control=False):
+        crop=False, magnif=False, sal_sample=False, sal_control=False,
+        memmap=False):
         """
         Args:
             dataset_dir (string): Directory with all the images. E:\Datasets
@@ -147,7 +151,8 @@ class Contrastive_STL10_w_CortMagnif(Dataset):
         self.dataset = datasets.STL10(dataset_dir, split=split, download=True,
                                  transform=None,)
 
-        self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy")) # stl10_unlabeled_saliency.npy
+        self.salmaps = np.load(join(dataset_dir, "stl10_unlabeled_salmaps_salicon.npy"),
+                               mmap_mode="r" if memmap else None)  # stl10_unlabeled_saliency.npy
         assert len(self.dataset) == self.salmaps.shape[0]
         self.root_dir = dataset_dir
         self.crop = crop
