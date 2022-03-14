@@ -191,7 +191,8 @@ train_acc_arr, test_acc_arr, simclr_acc_arr, eval_timestep, simclr_timestep, \
 param_table.to_csv(join(outdir, "Exp2_pure_magnif_vs_crop_result.csv"))
 
 #%% compare baseline with magnification
-magnif_msk = param_table.expdir.str.contains("proj256_eval_magnif_cvr_0_05-0_35_Oct")
+magnif_msk = param_table.expdir.str.contains("proj256_eval_magnif_cvr_0_05-0_35_fov30_K20_noblur_RNDrep_Dec")
+# final magnification experiments
 bsl_msk = param_table.expdir.str.contains("proj256_eval_magnif_bsl_Oct")
 for gname, msk in zip(["Magnificat", "Baseline"], [magnif_msk, bsl_msk]):
     print(f"{gname}\ttrain_acc {100*param_table.train_acc[msk].mean():.2f}+-{100*param_table.train_acc[msk].std():.2f}\t"
@@ -199,6 +200,10 @@ for gname, msk in zip(["Magnificat", "Baseline"], [magnif_msk, bsl_msk]):
           f"simclr_acc {param_table.simclr_acc[msk].mean():.2f}+-{param_table.simclr_acc[msk].std():.2f}")
 
 bootstrap_diff_mean(100*param_table.test_acc[magnif_msk],100*param_table.test_acc[bsl_msk])
+#%%
+
+bootstrap_diff_mean(100*param_table.test_acc[magnif_msk],100*param_table.test_acc[bsl_msk])
+
 #%%
 plt.figure(figsize=[10,10])
 plt.plot(test_acc_arr.T,)
@@ -305,8 +310,46 @@ figh.savefig(join(figdir, "Magnif_simclrAcc-temperature_curve_2.pdf"))
 
 #%%
 
+#%% Experiment 5: parameters of magnification transofrm
+runnms = os.listdir(rootdir)
+exp_fov_expdirs = [*filter(lambda nm:"proj256_eval_magnif_cvr_" in nm and "Dec0" in nm and
+                                    ("RNDrep_" not in nm) and ("salmap_" not in nm) and
+                                     ("proj256_eval_magnif_cvr_0_05-0_35_valid_Dec02_04-43-02-684" not in nm),
+                                    runnms)]
+train_acc_arr, test_acc_arr, simclr_acc_arr, eval_timestep, simclr_timestep, \
+    param_table = load_format_exps(exp_fov_expdirs, cfgkeys=["fov_size", "K", "cover_ratio", "crop", "magnif","blur"])
+param_table = param_table.sort_values(["fov_size", "K", ])
+param_table.reset_index(inplace=True)
+param_table.to_csv(join(outdir, "Exp5_magnif_param_tune_result.csv"))
+print(param_table.drop(["expdir","index"], axis=1))
 
 #%%
+print(param_table.sort_values(["test_acc"], ascending=False).drop(["expdir","index"], axis=1))
+
+#%%
+#%% Experiment 4 redo: saliency  magnification transofrm
+runnms = os.listdir(rootdir)
+exp_fov_expdirs = [*filter(lambda nm:("_fov30_K20_noblur_RND_Dec08" in nm and \
+                           "proj256_eval_magnif_salmap_T" in nm) or \
+                         ("proj256_eval_magnif_salmap_flat_cvr_0_05-0_35_fov30_K20_" in nm), runnms)]
+train_acc_arr, test_acc_arr, simclr_acc_arr, eval_timestep, simclr_timestep, \
+    param_table = load_format_exps(exp_fov_expdirs, cfgkeys=["sample_temperature","fov_size", "K", "cover_ratio", "crop", "magnif", "blur","sal_sample"])
+param_table = param_table.sort_values(["sample_temperature", ])
+param_table.reset_index(inplace=True)
+param_table.to_csv(join(outdir, "Exp4_magnif_saltemp_result_rnd_new.csv"))
+print(param_table.drop(["expdir","index"], axis=1))
+
+#%% Experiment 2 redo: feasibility of cortical magnification transform.
+runnms = os.listdir(rootdir)
+exp_fov_expdirs = [*filter(lambda nm:("_fov30_K20_noblur_RNDrep" in nm and \
+                           "salmap_T" not in nm), runnms)]
+train_acc_arr, test_acc_arr, simclr_acc_arr, eval_timestep, simclr_timestep, \
+    param_table = load_format_exps(exp_fov_expdirs, cfgkeys=["fov_size", "K", "cover_ratio", "crop", "magnif", "blur"])
+# param_table = param_table.sort_values(["sample_temperature", ])
+param_table.reset_index(inplace=True)
+param_table.to_csv(join(outdir, "Exp2_magnif_result_rnd_new.csv"))
+print(param_table.drop(["expdir","index"], axis=1))
+
 
 
 

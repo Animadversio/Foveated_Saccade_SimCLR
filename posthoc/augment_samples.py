@@ -116,3 +116,35 @@ mtgimg = vis_exist_samples(expnms[0], False)
 tiles, new_mtg = subsample_montage(mtgimg, rows=[5, 6, 7, 11], cols="rand", colsamps=4, pad=4)
 pil_showimg(new_mtg)
 np2pil(new_mtg).save(join(figdir, "augment_distrib", "magnif_w_salmap_dist_T0.7.png"))
+
+
+#%% Visualize effect of parameters of Magnification transform: cover ratio
+expnms = ["proj256_eval_magnif_cvr_0_01-0_35_fov30_K20_noblur_Dec04_09-14-33-684",
+          "proj256_eval_magnif_cvr_0_05-0_35_fov30_K20_noblur_Dec04_09-14-52-684",
+          "proj256_eval_magnif_cvr_0_05-0_70_fov30_K20_noblur_Dec04_09-14-30-684",
+          "proj256_eval_magnif_cvr_0_01-1_50_fov30_K20_noblur_Dec04_09-14-31-684"]
+labels = [nm[nm.find("cvr_"):nm.find("_noblur")] for nm in expnms]
+# labels = ["cvr_0_01-0_35_fov30_K20",
+#         "cvr_0_05-0_35_fov30_K20",
+#         "cvr_0_05-0_70_fov30_K20",
+#         "cvr_0_01-1_50_fov30_K20",]
+for i in range(len(expnms)):
+    mtgimg = vis_exist_samples(expnms[i], False)
+    tiles, new_mtg = subsample_montage(mtgimg, rows=[3], cols=[0, 2, 6, 7], colsamps=4, pad=4)#"rand"
+    pil_showimg(new_mtg)
+    np2pil(new_mtg).save(join(figdir, "augment_param_effect", "magnif_dist_%s.png"%labels[i]))
+
+#%% Visualize effect of parameters of Magnification transform: fov, K
+expnms = ["proj256_eval_magnif_cvr_0_05-0_35_fov15_K-7_5_noblur_Dec03_02-10-12-684",
+        "proj256_eval_magnif_cvr_0_05-0_35_fov15_K5_noblur_Dec03_02-16-51-684",
+        "proj256_eval_magnif_cvr_0_05-0_35_fov15_K20_noblur_Dec03_06-31-54-684",
+        "proj256_eval_magnif_cvr_0_05-0_35_fov30_K20_noblur_Dec04_09-14-52-684",
+        "proj256_eval_magnif_cvr_0_05-0_35_fov45_K-15_noblur_Dec04_13-04-30-684",
+        "proj256_eval_magnif_cvr_0_05-0_35_fov45_K20_noblur_Dec04_11-59-36-684",]
+labels = [nm[nm.find("cvr_"):nm.find("_noblur")] for nm in expnms]
+for i in range(len(expnms)):
+    mtgimg = vis_exist_samples(expnms[i], False)
+    tiles, new_mtg = subsample_montage(mtgimg, rows=[6], cols=[0, 2, 6, 1], colsamps=4, pad=4)#"rand"
+    pil_showimg(new_mtg)
+    np2pil(new_mtg).save(join(figdir, "augment_param_effect", "magnif_dist2_%s.png"%labels[i]))
+
