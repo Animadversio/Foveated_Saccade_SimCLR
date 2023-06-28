@@ -68,4 +68,15 @@ These two different views of foveation (perceptual vs neurobiological) were impl
 * [FastSal](https://github.com/Animadversio/FastSal), we forked and modified a few lines of [original](https://github.com/feiyanhu/FastSal) to make it compatible with current pytorch 3.9 and torchvision. 
 
 
+## Citation
+If you used or liked this code base in your research, consider referencing our paper in NeurIPS SVRHM workshop 2021. 
+```
+@article{wang2021corticalMagnification,
+  title={On the use of cortical magnification and saccades as biological proxies for data augmentation},
+  author={Wang, Binxu and Mayo, David and Deza, Arturo and Barbu, Andrei and Conwell, Colin},
+  journal={arXiv preprint arXiv:2112.07173},
+  year={2021}
+}
+```
+
 Inquiries: binxu_wang@hms.harvard.edu
